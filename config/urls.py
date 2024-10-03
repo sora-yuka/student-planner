@@ -30,4 +30,5 @@ schema_view = get_schema_view(info=openapi.Info(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('docs/', schema_view.with_ui(renderer='swagger')),
+    path('api/v1/account/', include('apps.accounts.urls')),
 ]

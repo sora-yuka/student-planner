@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, first_name, second_name, third_name, email, password, **extra_fields):
+    def _create_user(self, username, email, password, **extra_fields):
         if not email:
             raise ValueError("The given email must be set")
         email = self.normalize_email(email)
@@ -14,25 +14,23 @@ class UserManager(BaseUserManager):
         # manager method can be used in migrations. This is fine because
         # managers are by definition working on the real model.
         user = self.model(
-            first_name=first_name, 
-            second_name=second_name, 
-            third_name=third_name, 
+            username=username,
             email=email, 
             **extra_fields
             )
         user.password = make_password(password)
-        user
+        user.create_verification_code()
         user.save(using=self._db)
         return user
 
-    def create_user(self, first_name, second_name, third_name, email, password, **extra_fields):
+    def create_user(self, username, email, password, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         extra_fields.setdefault("is_active", False)
-        return self._create_user(first_name, second_name, third_name, email, password, **extra_fields)
+        return self._create_user(username, email, password, **extra_fields)
 
     def create_superuser(self, email, password, **extra_fields):
-        first_name = second_name = third_name = "default"
+        username = "blank"
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -44,18 +42,17 @@ class UserManager(BaseUserManager):
         if extra_fields.get("is_active") is not True:
             raise ValueError("Superuser must have is_active=True.")
 
-        return self._create_user(first_name, second_name, third_name, email, password, **extra_fields)
+        return self._create_user(username, email, password, **extra_fields)
 
 
 class CustomUser(AbstractUser):
-    username = None
-    first_name = models.CharField(max_length=40, null=False, blank=False)
-    second_name = models.CharField(max_length=40, null=False, blank=False)
-    third_name = models.CharField(max_length=40, null=False, blank=False)
+    username = models.CharField(max_length=200, null=False, blank=False)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
     verification_code = models.CharField(max_length=100, blank=True)
     is_active = models.BooleanField(default=False)
+    is_student = models.BooleanField(default=False)
+    is_teacher = models.BooleanField(default=False)
     
     objects = UserManager()
     
