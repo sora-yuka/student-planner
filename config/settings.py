@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     
     # Internal packages
+    'apps.accounts'
 ]
 
 MIDDLEWARE = [
@@ -71,7 +72,7 @@ CORS_ALLOWED_ORIGINS = [
 
 # Custom user definition
 
-# AUTH_USER_MODEL = ''
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 ROOT_URLCONF = 'config.urls'
 
